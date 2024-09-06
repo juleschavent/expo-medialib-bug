@@ -1,52 +1,65 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform, View, Text, Button, Alert } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useEffect, useState } from 'react';
+import { Asset } from 'expo-media-library';
+import {  deleteAssets, getMediaList } from '../media';
 
 export default function HomeScreen() {
+
+  const [mediaItems, setMediaItems] = useState<Asset[]>([]);
+
+  useEffect(() => {
+    const fetchMedia = async () => {
+      try {
+        const result = await getMediaList();
+        setMediaItems(result.assets);
+      } catch (error) {
+        console.error('Error fetching media:', error);
+      }
+    };
+
+    fetchMedia();
+  }, []);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  console.log({
+    mediaItems: mediaItems[0]
+  });
+  
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const result = await deleteAssets([mediaItems[0]]);
+      if (result) {
+        Alert.alert('Success', 'Assets deleted successfully');
+      } else {
+        Alert.alert('Error', 'Failed to delete assets');
+      }
+    } catch (error) {
+      console.error('Error deleting assets:', error);
+      Alert.alert('Error', 'An error occurred while deleting assets');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+   <View style={{ padding: 70}}>
+    <Text style={{color: 'white'}}>
+    temp
+      </Text>
+      <Button
+        title='click'
+        onPress={handleDelete}
+      />
+   </View>
   );
 }
 
